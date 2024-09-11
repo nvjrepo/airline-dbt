@@ -1,0 +1,45 @@
+version: 2
+
+models:
+  - name: stg_booking__boarding_passes
+    columns:
+      - name: ticket_flight_id
+        data_tests:
+          - unique
+          - not_null        
+  - name: stg_booking__seats
+    columns:
+      - name: seat_aircraft_id
+        data_tests:
+          - unique
+          - not_null
+  - name: stg_booking__bookings
+    columns:
+      - name: book_ref
+        data_tests:
+          - unique
+          - not_null
+  - name: stg_booking__ticket_flights
+    columns:
+      - name: ticket_flight_id
+        data_tests:
+          - unique
+          - not_null
+  - name: stg_booking__airports
+    columns:
+      - name: airport_code
+        data_tests:
+          - unique
+          - not_null
+  - name: stg_booking__flights
+    columns:
+      - name: flight_id
+        data_tests:
+          - unique
+          - not_null
+  - name: stg_booking__tickets
+    columns:
+      - name: ticket_no
+        data_tests:
+          - unique
+          - not_null
