@@ -1,0 +1,13 @@
+airline_dbt:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: "{{ env_var('POSTGRES_HOST') }}"
+      user: "{{ env_var('DBT_USER') }}"
+      password: "{{ env_var('DBT_PASSWORD') }}"
+      port: 10022
+      dbname: "{{ env_var('DBT_DB', 'airline') }}"
+      schema: dev
+      threads: 4
+      connect_timeout: 20

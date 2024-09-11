@@ -1,0 +1,65 @@
+name: pr_to_main_sqlfluff
+on:
+  pull_request:
+    branches:
+      - main
+      - release/**
+      - feat/add-new-sale-sources
+
+env:
+  DBT_PROFILES_DIR: ./
+  POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
+  DBT_USER: ${{ secrets.DBT_USER }}
+  DBT_PASSWORD: ${{ secrets.DBT_PASSWORD }}
+
+jobs:
+  pr_to_main_sqlfluff:
+    name: pr_to_main_sqlfluff
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@v2
+
+      - uses: actions/setup-python@v1
+        with:
+          python-version: "3.11.x"
+
+      # Dbt - Google BigQuery
+      - name: Authenticate gcloud
+        uses: google-github-actions/setup-gcloud@v0.2.0
+        with:
+          service_account_key: ${{ secrets.PACC_SA_ANALYTICS }}
+          project_id: ${{ env.DBT_GOOGLE_PROJECT_DEV }}
+      
+      - name: Create Google Service Account key file from secret
+        run: 'echo "$KEYFILE" > ${{ env.PACC_SA_ANALYTICS }}'
+        shell: bash
+        env:
+          KEYFILE: ${{ secrets.PACC_SA_ANALYTICS }}
+
+      ## Cache Pip wheel files
+      - name: Cache Pip
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+
+      ## Install Python dependencies & Dbt packages
+      - name: Install dependencies
+        run: |
+          pip3 install -r requirements.txt
+          dbt deps
+
+      ## Lint model files
+      - name: Lint dbt models
+        id: sqlfluff_json
+        run: |
+          git fetch origin ${{ github.event.pull_request.base.ref }}:${{ github.event.pull_request.base.ref }}
+          git diff ${{ github.event.pull_request.base.ref }} --name-only --diff-filter=d | egrep '^models/.*sql$$' | xargs -r sqlfluff lint --format github-annotation --annotation-level failure --nofail --write-output annotations.json     
+
+      - name: Annotate
+        uses: yuzutech/annotations-action@v0.4.0
+        with:
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          input: './annotations.json'          
