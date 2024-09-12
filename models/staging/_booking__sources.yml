@@ -3,9 +3,9 @@ version: 2
 sources:
 
 - name: bookings
-  description: data is manually ingested into dwh, no recurring EL
+  description: Airline booking data, extracted and loaded from OLTP schema 'bookings'
   database: airline
-  schema: bookings
+  schema: dwh
   tables: 
     - name: bookings
       columns:
@@ -38,6 +38,7 @@ sources:
               - ticket_no
               - flight_id     
     - name: airports
+      identifier: airports_data
       columns:
         - name: airport_code
           data_tests:
