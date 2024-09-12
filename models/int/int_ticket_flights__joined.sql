@@ -11,6 +11,7 @@ select
     ticket_flights.flight_id,
     ticket_flights.fare_conditions,
     ticket_flights.ticket_no,
+    ticket_flights.revenue,
     tickets.book_ref,
     tickets.passenger_id,
     tickets.passenger_name,

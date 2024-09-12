@@ -22,26 +22,27 @@ joined as (
         flights.scheduled_arrival_at,
         flights.actual_departure_at,
         flights.actual_arrival_at,
+        flights.is_flight_arrived,
         dep_airports.airport_name as departure_airport,
         arr_airports.airport_name as arrival_airport,
         seats.number_of_seats,
         seats.number_of_seats * {{ var('cleaning_cost_per_seat') }} as flight_cleaning_cost,
 
         -- Fuel cost is only applied for depart and arrived flights
-        case
+        (case
             when flights.is_flight_arrived
                 then ({{ travel_distance(
                         unit = 'km',
                         departure_point = 'dep_airports.coordinates',
                         arrival_point = 'arr_airports.coordinates'
                     ) }}) * {{ var('fuel_cost_per_km') }}
-        end as flight_fuel_cost,
+        end)::bigint as flight_fuel_cost,
 
-        {{ travel_distance(
+        ({{ travel_distance(
             unit = 'miles',
             departure_point = 'dep_airports.coordinates',
             arrival_point = 'arr_airports.coordinates'
-        ) }} as distance_in_miles
+        ) }})::bigint as distance_in_miles
 
     from flights
     inner join airports as dep_airports

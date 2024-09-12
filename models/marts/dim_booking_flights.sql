@@ -10,7 +10,7 @@ final as (
         book_ref,
         passenger_id as lead_passenger_id,
         passenger_name as lead_passenger_name,
-        fare_conditions as lead_fare_condition
+        fare_conditions as lead_fare_conditions
 
     from flights
 )

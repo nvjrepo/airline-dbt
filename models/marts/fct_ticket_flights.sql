@@ -24,7 +24,9 @@ joined as (
         case
             when ticket_flights.fare_conditions = 'Economy' then {{ var('meal_cost_economy') }}
             else {{ var('meal_cost_business') }}
-        end as passenger_meal_cost
+        end as passenger_meal_cost,
+
+        round((1.0 / count(*) over (partition by ticket_flights.flight_id))::numeric, 4) as flight_divider
 
     from ticket_flights
     left join boarding_passes
