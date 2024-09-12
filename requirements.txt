@@ -1,0 +1,4 @@
+# Add Python dependencies for development here
+
+dbt-postgres~=1.8 #dbt-bigquery is a dependency
+sqlfluff-templater-dbt~=3.0 #sqlfluff is a dependency

@@ -1,0 +1,86 @@
+name: pr_to_main_dbt
+on:
+  pull_request:
+
+env:
+  ARTIFACT_DBT_MANIFEST_WORKFLOW: ci_generate_artifact.yml
+  POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
+  DBT_USER: ${{ secrets.DBT_USER }}
+  DBT_PASSWORD: ${{ secrets.DBT_PASSWORD }}
+
+jobs:
+  pr_to_main_dbt:
+    name: pr_to_main_dbt
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@v2
+
+      - uses: actions/setup-python@v1
+        with:
+          python-version: "3.11.x"
+
+      ## Cache Pip wheel files
+      - name: Cache Pip
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+
+      ## Install Python dependencies & Dbt packages
+      - name: Install dependencies
+        run: |
+          pip3 install -r requirements.txt
+          dbt deps
+           
+      - name: Compile DBT Project
+        run: |
+          dbt compile
+
+      - name: Download dbt manifest
+        id: download_dbt_manifest
+        if: success() || failure()
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: ${{ env.ARTIFACT_DBT_MANIFEST_WORKFLOW }}
+          workflow_conclusion: completed        
+          branch: ${{ github.event.pull_request.base.ref }}
+          name: ${{ env.ARTIFACT_DBT_MANIFEST_NAME }}
+          path: .
+          check_artifacts: false
+        continue-on-error: true
+
+      - name: Run Seed
+        run: |
+          dbt seed --target dev -f
+
+      ## In some case, manifest file artifact cannot be downloaded.
+      # Then, compile current code to create a new manifest file.
+      # Note, because previous dbt state is missing, all models will be
+      # run and tested.
+      - name: Run all models
+        id: run_all_models
+        if: always() && steps.download_dbt_manifest.outcome != 'success'
+        run: |
+          dbt run --target dev
+
+      - name: Test all models
+        id: test_all_models
+        if: always() && steps.download_dbt_manifest.outcome != 'success'
+        run: |
+          dbt test --target dev
+
+      ## If manifest file is available:
+      # Run delta models          
+      - name: Run delta models
+        id: run_delta_models
+        if: always() && steps.download_dbt_manifest.outcome == 'success'   
+        run: |
+          dbt run --target dev -s +state:modified+1 --state .
+
+      - name: Test delta models
+        id: test_delta_models
+        if: always() && steps.download_dbt_manifest.outcome == 'success'
+        run: |
+          dbt test --target dev -s +state:modified+1 --state .

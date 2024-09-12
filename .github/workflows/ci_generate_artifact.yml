@@ -1,0 +1,54 @@
+name: ci_generate_artifact
+
+on:
+  push:
+    branches:
+      - main
+      - release/**
+
+  workflow_dispatch:
+
+env:
+  ARTIFACT_DBT_MANIFEST_NAME: dbt_manifest
+  DBT_PROFILES_DIR: ./
+  POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
+  DBT_USER: ${{ secrets.DBT_USER }}
+  DBT_PASSWORD: ${{ secrets.DBT_PASSWORD }}
+
+jobs:
+  ci_generate_artifact:
+    name: ci_generate_artifact
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@master
+
+      - uses: actions/setup-python@v1
+        with:
+          python-version: "3.11.x"
+
+
+      ## Cache Pip wheel files
+      - name: Cache Pip
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+
+      - name: Install dependencies
+        run: |
+          pip3 install -r requirements.txt
+          dbt deps
+
+      - name: Dbt compile
+        run: dbt compile
+
+      - name: Upload dbt manifest
+        uses: actions/upload-artifact@v2
+        if: always()
+        with:
+            name: ${{ env.ARTIFACT_DBT_MANIFEST_NAME }}
+            path: target/manifest.json
+            if-no-files-found: error
