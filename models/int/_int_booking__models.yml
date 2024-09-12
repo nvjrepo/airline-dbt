@@ -1,0 +1,15 @@
+version: 2
+
+models:
+  - name: int_ticket_flights__joined
+    description: >
+      The model performed join between ticket_flights and ticket. The logic will be reused int_ticket_flights__joined
+      multiple downstream models, preserving DRY for any future adjustments
+    data_tests:
+      - dbt_utils.equal_rowcount:
+          compare_model: ref('stg_booking__ticket_flights')     
+    columns:
+      - name: ticket_flight_id
+        data_tests:
+          - unique
+          - not_null  
