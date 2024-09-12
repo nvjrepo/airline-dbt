@@ -1,3 +1,20 @@
+/*
+------------------------------
+CLI statement definition
+------------------------------
+*/
+
+/*
+The logic is defined to clone tables and relevant information from backend schema (bookings) to OLAP schema (dwh).
+To execute the script, run below cli, and replace proper value to '[]' areas:
+`psql -h [HOST] -p [PORT] -U [USER] -d [DATABASE] -f analyses/production-backend/load_data_to_dwh.sql`
+*/
+
+/*
+------------------------------
+SQL statement definition
+------------------------------
+*/
 DROP SCHEMA IF EXISTS dwh CASCADE;
 CREATE SCHEMA dwh;
 
