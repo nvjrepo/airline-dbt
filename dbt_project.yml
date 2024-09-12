@@ -35,5 +35,5 @@ models:
       +materialized: ephemeral      
     marts:
       +materialized: table
-
-
+    metrics:
+      +materialized: table
