@@ -522,7 +522,7 @@ INSERT INTO dwh.bookings select * from bookings.bookings;
 INSERT INTO dwh.flights select * from bookings.flights;
 INSERT INTO dwh.ticket_flights select * from bookings.ticket_flights;
 INSERT INTO dwh.tickets select * from bookings.tickets;
-
+INSERT INTO dwh.seats select * from bookings.seats;
 
 --
 -- Name: aircrafts_data aircrafts_pkey; Type: CONSTRAINT; Schema: bookings; Owner: -

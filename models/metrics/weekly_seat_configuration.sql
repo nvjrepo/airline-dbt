@@ -82,27 +82,6 @@ joined as (
                         ticket_flights.fare_conditions = 'Economy' then ticket_flights.revenue
                 end
             ), 0
-        )::bigint as economy_revenue,
-
-        coalesce(
-            sum(
-                case
-                    when
-                        ticket_flights.fare_conditions = 'Economy'
-                        then ticket_flights.passenger_meal_cost
-                            + flights.flight_cleaning_cost * ticket_flights.flight_divider
-                            + flights.flight_fuel_cost * ticket_flights.flight_divider
-                end
-            ), 0
-        )::bigint as economy_cost,
-
-        coalesce(
-            sum(
-                case
-                    when
-                        ticket_flights.fare_conditions = 'Economy' then ticket_flights.revenue
-                end
-            ), 0
         )::bigint
         / nullif(
             sum(
