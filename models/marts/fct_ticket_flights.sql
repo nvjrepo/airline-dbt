@@ -21,12 +21,15 @@ joined as (
         boarding_passes.seat_no,
         boarding_passes.ticket_flight_id is not null as is_boarding_passes_print,
 
+        {{ dbt_utils.generate_surrogate_key(
+            ['boarding_passes.seat_no', 'ticket_flights.flight_id']
+        ) }} as seat_flight_id,
         case
             when ticket_flights.fare_conditions = 'Economy' then {{ var('meal_cost_economy') }}
             else {{ var('meal_cost_business') }}
         end as passenger_meal_cost,
 
-        round((1.0 / count(*) over (partition by ticket_flights.flight_id))::numeric, 4) as flight_divider
+        round(cast((1.0 / count(*) over (partition by ticket_flights.flight_id)) as numeric), 4) as flight_divider
 
     from ticket_flights
     left join boarding_passes
