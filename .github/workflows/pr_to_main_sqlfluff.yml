@@ -25,19 +25,6 @@ jobs:
         with:
           python-version: "3.11.x"
 
-      # Dbt - Google BigQuery
-      - name: Authenticate gcloud
-        uses: google-github-actions/setup-gcloud@v0.2.0
-        with:
-          service_account_key: ${{ secrets.PACC_SA_ANALYTICS }}
-          project_id: ${{ env.DBT_GOOGLE_PROJECT_DEV }}
-      
-      - name: Create Google Service Account key file from secret
-        run: 'echo "$KEYFILE" > ${{ env.PACC_SA_ANALYTICS }}'
-        shell: bash
-        env:
-          KEYFILE: ${{ secrets.PACC_SA_ANALYTICS }}
-
       ## Cache Pip wheel files
       - name: Cache Pip
         uses: actions/cache@v2
