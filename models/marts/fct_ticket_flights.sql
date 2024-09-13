@@ -42,9 +42,11 @@ joined as (
         flights.number_of_seats,
         flights.distance_in_miles,
         ticket_flights.revenue as flight_revenue,
-        (flights.number_of_seats
-        * ticket_flights.flight_divider
-        * {{ var('cleaning_cost_per_seat') }})::bigint as flight_cleaning_cost,
+        (
+            flights.number_of_seats
+            * ticket_flights.flight_divider
+            * {{ var('cleaning_cost_per_seat') }}
+        )::bigint as flight_cleaning_cost,
 
         (case
             when flights.is_flight_arrived

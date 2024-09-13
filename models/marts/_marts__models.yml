@@ -79,7 +79,7 @@ models:
         data_type: bigint
       - name:  distance_in_miles
         description: distance between departure and destination airports in miles 
-        data_type: flight_revenue   
+        data_type: bigint   
       - name: flight_revenue
         description: revenue earned per ticket
         data_type: bigint 
