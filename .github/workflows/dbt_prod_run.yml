@@ -34,18 +34,22 @@ jobs:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
 
-      ## Install Python dependencies & Dbt packages
+      ## Install Python dependencies, extension & Dbt packages
       - name: Install dependencies
         run: |
           pip3 install -r requirements.txt
           dbt deps
+
+      - name: Install extension for Postgres schema
+        run: |
+          dbt run-operation create_extensions
 
       # dbt related commands here - run use --target prod/dev to run for specific environments
       - name: Run dbt seed
         run: dbt seed --target prod
         
       - name: Run dbt models
-        run: dbt run --target prod --exclude tag:weekly
+        run: dbt run --target prod
   
       - name: Test dbt models
-        run: dbt test --target prod --exclude tag:weekly
+        run: dbt test --target prod
