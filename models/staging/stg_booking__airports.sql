@@ -8,7 +8,7 @@ renamed as (
 
     select
         airport_code,
-        airport_name,
+        airport_name::text as airport_name,
         city,
         coordinates,
         timezone

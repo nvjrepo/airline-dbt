@@ -29,12 +29,12 @@ joined as (
         -- flight information        
         ticket_flights.passenger_name,
         ticket_flights.fare_conditions,
-        flights.is_flight_arrived,
         flights.departure_airport,
         flights.arrival_airport,
         boarding_passes.seat_no,
 
         -- boolean for downstream filters
+        flights.is_flight_arrived,
         ticket_flights.is_lead_booking_passenger,
         boarding_passes.ticket_flight_id is not null as is_boarding_passes_printed,
 
@@ -42,9 +42,9 @@ joined as (
         flights.number_of_seats,
         flights.distance_in_miles,
         ticket_flights.revenue as flight_revenue,
-        flights.number_of_seats
+        (flights.number_of_seats
         * ticket_flights.flight_divider
-        * {{ var('cleaning_cost_per_seat') }} as flight_cleaning_cost,
+        * {{ var('cleaning_cost_per_seat') }})::bigint as flight_cleaning_cost,
 
         (case
             when flights.is_flight_arrived

@@ -7,68 +7,155 @@ models:
       Not all tickets got boarding passes printed, probably because the passengers didn't show up or failed to make it to the flight
       We assume that the fact that no boarding passes printed won't affect airline revenue, and associated metrics like miles, 
       flight since passengers won't get any refunds if not showing up 
+    config:
+      contract:
+        enforced: true
     data_tests:
       - dbt_utils.equal_rowcount:
           compare_model: ref('stg_booking__ticket_flights')     
     columns:
       - name: ticket_flight_id
-        constraints:
-          - type: primary_key     
-          - type: not_null      
+        description: primary key of the table, surrogate key of ticket_id and flight_id 
+        data_type: text  
         data_tests:
           - unique
-          - not_null   
-      - name: is_flight_arrived
-        description: determine whether the flights reach destination
-      - name:  number_of_seats
-        description: number of available seats on the flights
-      - name:  distance_in_miles
-        description: distance between departure and destination airports in miles      
-      - name: flight_cleaning_cost
-        description: cleaning cost per flight, equal number_of_seats * var cleaning_cost_per_seat
-      - name: flight_fuel_cost
-        description: >
-          fuel cost per flight, only applicable to arrived flight,
-          equal distance_in_km * var fuel_cost_per_km          
+          - not_null
       - name: book_flight_id
         description: foreign key to `dim_booking_flights`
+        data_type: text
         data_tests:
          - relationships:
               to: ref('dim_booking_flights')
-              field: book_flight_id
+              field: book_flight_id          
+      - name: ticket_no
+        description: flight ticket number
+        data_type: char(13)
+      - name: flight_id
+        description: "{{ doc('flight_id') }}"
+        data_type: integer
+      - name: passenger_id
+        description: id of passenger in the system
+        data_type: varchar(20)
       - name: seat_flight_id
         description: foreign key to `fct_seat_flights`
+        data_type: text
         data_tests:
          - relationships:
               to: ref('fct_seat_flights')
               field: seat_flight_id
-              where: seat_no is not null                    
-      - name: flight_divider
-        description: divider to allocate metrics in `flight_id` level to ticket level  
+              where: seat_no is not null   
+      - name: actual_departure_at
+        description: "{{ doc('actual_departure_at') }}"
+        data_type: timestamptz
+      - name: actual_arrival_at
+        description: "{{ doc('actual_arrival_at') }}"
+        data_type: timestamptz
+      - name: passenger_name
+        description: name of passenger in the system
+        data_type: text
+      - name: fare_conditions
+        description: "{{ doc('fare_conditions') }}"
+        data_type: text
+      - name: departure_airport
+        description: airport of departure
+        data_type: text
+      - name: arrival_airport
+        description: airport of arrival
+        data_type: text
+      - name: seat_no
+        description: "{{ doc('seat_no') }}"
+        data_type: text
+      - name: is_flight_arrived
+        description: "{{ doc('is_flight_arrived') }}"
+        data_type: boolean
+      - name: is_lead_booking_passenger
+        description: determined whether the ticket belong to lead passgeners
+        data_type: boolean
+      - name: is_boarding_passes_printed
+        description: determined whether boarding pass is printed for the ticket
+        data_type: boolean
+      - name:  number_of_seats
+        description: number of available seats on the flights
+        data_type: bigint
+      - name:  distance_in_miles
+        description: distance between departure and destination airports in miles 
+        data_type: flight_revenue   
+      - name: flight_revenue
+        description: revenue earned per ticket
+        data_type: bigint 
+      - name: flight_cleaning_cost
+        description: >
+          cleaning cost per flight, equal number_of_seats var cleaning_cost_per_seat * flight_divider.
+          fuel cost needs to be distributed among passengers in the same flights 
+        data_type: bigint
+      - name: flight_fuel_cost
+        description: >
+          fuel cost per flight, only applicable to arrived flight, equal distance_in_km * fuel_cost_per_km * flight_divider.
+          fuel cost needs to be distributed among passengers in the same flights 
+        data_type: bigint
+      - name: passenger_meal_cost
+        description: meal cost per passenger, varry among fare conditions
+        data_type: bigint 
 
   - name: dim_booking_flights
     description: Each row represents information of a booking for a flight. Multiple booking can be made per flight
+    config:
+      contract:
+        enforced: true
     columns:
-      - name: book_flight_id
-        constraints:
-          - type: primary_key     
-          - type: not_null      
+      - name: book_flight_id   
+        description: primary key of the table, surrogate key of book_ref and flight_id    
+        data_type: text
         data_tests:
           - unique
           - not_null  
+      - name: flight_id
+        description: "{{ doc('flight_id') }}"  
+        data_type: integer
+      - name: book_ref
+        description: booking number
+        data_type: char(6)
       - name: lead_passenger_id
-        description: Defined to be the holder of the first ticket issued for a given booking               
+        description: Defined to be the holder of the first ticket issued for a given booking  
+        data_type: varchar(20)
+      - name: lead_passenger_name
+        description: name of the lead passenger
+        data_type: text
+      - name: lead_fare_conditions          
+        description: travel class of the lead passenger
+        data_type: text
 
   - name: fct_seat_flights    
     description: Each row represents information  availability or usage of seats for each flight instance.
+    config:
+      contract:
+        enforced: true
     columns:
-      - name: seat_flight_id
-        constraints:
-          - type: primary_key     
-          - type: not_null      
+      - name: seat_flight_id   
+        description: primary key of the table, surrogate key of seat_no and flight_id 
+        data_type: text   
         data_tests:
           - unique
           - not_null
-      - name: is_seat_taken
-        description: determine whether the seat was taken in specific flight  
-            
+      - name: flight_id
+        description: "{{ doc('flight_id') }}" 
+        data_type: integer
+      - name: actual_departure_at
+        description: "{{ doc('actual_departure_at') }}"
+        data_type: timestamptz
+      - name: actual_arrival_at
+        description: "{{ doc('actual_arrival_at') }}"
+        data_type: timestamptz
+      - name: seat_no
+        description: "{{ doc('seat_no') }}"
+        data_type: text
+      - name: seat_fare_conditions
+        description: "{{ doc('fare_conditions') }}"
+        data_type: text
+      - name: number_of_seats
+        description: number of total seats on the flights
+        data_type: integer
+      - name: is_flight_arrived
+        description: "{{ doc('is_flight_arrived') }}"
+        data_type: boolean
+
