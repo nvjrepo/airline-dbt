@@ -1,0 +1,11 @@
+version: 2
+
+models:
+  - name: stg_gs__cost_mapping
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - cost_month
+            - cost_type
+            - fare_condition
+            - aircraft_code
