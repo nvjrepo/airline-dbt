@@ -16,7 +16,7 @@ SQL statement definition
 ------------------------------
 */
 
-DROP TABLE IF EXISTS cost_mapping_long_term
+DROP TABLE IF EXISTS dwh.cost_mapping_long_term;
 CREATE TABLE dwh.cost_mapping_long_term (
     cost_type_id     SERIAL PRIMARY KEY,
     cost_type        VARCHAR(255) NOT NULL,

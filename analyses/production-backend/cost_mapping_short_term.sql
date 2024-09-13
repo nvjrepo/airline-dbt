@@ -16,8 +16,8 @@ SQL statement definition
 ------------------------------
 */
 
-DROP TABLE IF EXISTS cost_mapping_short_term
-CREATE TABLE cost_mapping_short_term (
+DROP TABLE IF EXISTS dwh.cost_mapping_short_term;
+CREATE TABLE dwh.cost_mapping_short_term (
     month           DATE NOT NULL,
     cost_type       VARCHAR(255) NOT NULL,
     rate            NUMERIC NOT NULL,
@@ -26,7 +26,7 @@ CREATE TABLE cost_mapping_short_term (
     aircraft_code   VARCHAR(50) NOT NULL
 );
 
-INSERT INTO cost_mapping_short_term 
+INSERT INTO dwh.cost_mapping_short_term 
     (month, cost_type, rate, unit, fare_condition, aircraft_code)
 VALUES 
     ('1970-01-01', 'Fuel Cost', 90, 'km', 'All', 'All'),

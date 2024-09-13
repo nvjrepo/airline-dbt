@@ -10,6 +10,10 @@ flights as (
     select * from {{ ref('int_flights__joined') }}
 ),
 
+costs as (
+    select * from {{ ref('stg_gs__cost_mapping') }}
+),
+
 joined as (
     select
         -- id and key
@@ -45,18 +49,16 @@ joined as (
         (
             flights.number_of_seats
             * ticket_flights.flight_divider
-            * {{ var('cleaning_cost_per_seat') }}
+            * c_cost.rate
         )::bigint as flight_cleaning_cost,
 
         (case
             when flights.is_flight_arrived
-                then flights.distance_in_km * ticket_flights.flight_divider * {{ var('fuel_cost_per_km') }}
+                then flights.distance_in_km * ticket_flights.flight_divider * f_cost.rate
+
         end)::bigint as flight_fuel_cost,
 
-        (case
-            when ticket_flights.fare_conditions = 'Economy' then {{ var('meal_cost_economy') }}
-            else {{ var('meal_cost_business') }}
-        end)::bigint as passenger_meal_cost
+        m_cost.rate::bigint as passenger_meal_cost
 
     from ticket_flights
     left join boarding_passes
@@ -64,6 +66,19 @@ joined as (
     inner join flights
         on ticket_flights.flight_id = flights.flight_id
 
+    -- for all logic joined with costs table, replace 1=1 by 
+    -- date_trunc(month, ticket_flights.actual_arrival_at)::date = cost_month
+    -- when receiving monthly date
+    inner join costs as f_cost
+        on 1 = 1
+            and f_cost.cost_type = 'Fuel Cost'
+    inner join costs as c_cost
+        on 1 = 1
+            and c_cost.cost_type = 'Cleaning Cost'
+    inner join costs as m_cost
+        on 1 = 1
+            and m_cost.cost_type = 'Meal Cost'
+            and ticket_flights.fare_conditions = m_cost.fare_condition
 )
 
 select * from joined
