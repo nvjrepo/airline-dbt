@@ -72,9 +72,12 @@ joined as (
     inner join costs as f_cost
         on 1 = 1
             and f_cost.cost_type = 'Fuel Cost'
+            -- and ticket_flights.aircraft_code = f_cost.aircraft_code
     inner join costs as c_cost
         on 1 = 1
             and c_cost.cost_type = 'Cleaning Cost'
+            -- and ticket_flights.aircraft_code = c_cost.aircraft_code
+            -- and ticket_flights.fare_conditions = c_cost.fare_condition
     inner join costs as m_cost
         on 1 = 1
             and m_cost.cost_type = 'Meal Cost'
