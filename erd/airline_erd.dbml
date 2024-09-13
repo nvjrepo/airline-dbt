@@ -1,0 +1,52 @@
+// Use DBML to define your database structure
+// Docs: https://dbml.dbdiagram.io/docs
+
+Table dim_booking_flights {
+  book_flight_id text [primary key]
+  flight_id text
+  book_ref text 
+  lead_passenger_id text
+  lead_passenger_name text
+  lead_fare_conditions text
+}
+
+Table fct_ticket_flights {
+  ticket_flight_id text [primary key]
+  book_flight_id text
+  seat_flight_id text
+  ticket_no char(13)
+  flight_id integer
+  passenger_id varchar(20)
+  actual_departure_at timestamptz
+  actual_arrival_at timestamptz
+  passenger_name text
+  fare_conditions text
+  departure_airport text
+  arrival_airport text
+  seat_no text
+  is_flight_arrived boolean
+  is_lead_booking_passenger boolean
+  is_boarding_passes_printed boolean
+  number_of_seats bigint
+  distance_in_miles bigint
+  flight_revenue bigint
+  flight_cleaning_cost bigint
+  flight_fuel_cost bigint
+  passenger_meal_cost bigint
+}
+
+Table fct_seat_flights {
+  seat_flight_id text [primary key]
+  flight_id integer
+  actual_departure_at timestamptz
+  actual_arrival_at timestamptz
+  seat_no text
+  seat_fare_conditions text
+  number_of_seats integer
+  is_flight_arrived boolean
+
+}
+
+Ref: fct_ticket_flights.book_flight_id > dim_booking_flights.book_flight_id // many-to-one
+
+Ref: fct_ticket_flights.seat_flight_id > fct_seat_flights.seat_flight_id // many-to-one

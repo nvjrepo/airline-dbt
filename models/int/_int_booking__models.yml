@@ -13,3 +13,16 @@ models:
         data_tests:
           - unique
           - not_null  
+
+  - name: int_flights__joined
+    description: >
+      The model performed join between flights and other tables to enrich flight information.
+      The model is materialized as `table` to reduce computing resources in mart models
+    data_tests:
+      - dbt_utils.equal_rowcount:
+          compare_model: ref('stg_booking__flights')     
+    columns:
+      - name: flight_id
+        data_tests:
+          - unique
+          - not_null  

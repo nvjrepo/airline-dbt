@@ -1,0 +1,17 @@
+version: 2
+
+sources:
+
+- name: google_sheets
+  description: Airline booking data, extracted and loaded from OLTP schema 'bookings'
+  database: airline
+  schema: dwh
+  tables: 
+    - name: cost_mapping_short_term
+      data_tests:
+        - dbt_utils.unique_combination_of_columns:
+            combination_of_columns:
+              - month
+              - cost_type
+              - fare_condition
+              - aircraft_code

@@ -9,6 +9,7 @@ on:
 env:
   DBT_PROFILES_DIR: ./
   POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
+  POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
   DBT_USER: ${{ secrets.DBT_USER }}
   DBT_PASSWORD: ${{ secrets.DBT_PASSWORD }}
 

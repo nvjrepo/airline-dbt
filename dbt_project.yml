@@ -31,9 +31,13 @@ models:
   airline_dbt:
     staging:
       +materialized: view
+      +schema: staging
     int:
-      +materialized: ephemeral      
+      +materialized: ephemeral
+      +schema: staging      
     marts:
       +materialized: table
+      +schema: mart
     metrics:
       +materialized: table
+      +schema: mart

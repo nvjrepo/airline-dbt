@@ -10,6 +10,8 @@ env:
   # specify value of the variables in repository's secret,
   # detail is https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions
   DBT_PROFILES_DIR: ./
+  POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
+  POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
   DBT_USER: ${{ secrets.DBT_USER }}
   DBT_PASSWORD: ${{ secrets.DBT_PASSWORD }}
 
