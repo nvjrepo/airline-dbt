@@ -3,7 +3,7 @@ version: 2
 sources:
 
 - name: google_sheets
-  description: Airline booking data, extracted and loaded from OLTP schema 'bookings'
+  description: Airline cost data, extracted and loaded google sheet files entered by the Finance team
   database: airline
   schema: dwh
   tables: 

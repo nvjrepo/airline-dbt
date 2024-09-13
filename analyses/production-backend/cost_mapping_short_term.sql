@@ -7,7 +7,7 @@ CLI statement definition
 /*
 The logic is defined to create cost table for short-term usage in OLAP schema (dwh).
 To execute the script, run below cli, and replace proper value to '[]' areas:
-`psql -h [HOST] -p [PORT] -U [USER] -d [DATABASE] -f analyses/production-backend/load_data_to_dwh.sql`
+`psql -h [HOST] -p [PORT] -U [USER] -d [DATABASE] -f analyses/production-backend/cost_mapping_short_term.sql`
 */
 
 /*

@@ -17,14 +17,6 @@ clean-targets:
   - "target"
   - "dbt_packages"
 
-# default variable declaration
-# Full documentation: https://docs.getdbt.com/docs/build/project-variables
-vars:
-  fuel_cost_per_km: 90
-  cleaning_cost_per_seat: 800
-  meal_cost_economy: 1000
-  meal_cost_business: 5000
-
 # Configuring models
 # Full documentation: https://docs.getdbt.com/docs/configuring-models
 models:
