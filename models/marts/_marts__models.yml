@@ -1,32 +1,6 @@
 version: 2
 
 models:
-  - name: fct_flights
-    description: Each row represents an event when a flight created
-    data_tests:
-      - dbt_utils.equal_rowcount:
-          compare_model: ref('stg_booking__flights')     
-    columns:
-      - name: flight_id
-        constraints:
-          - type: primary_key     
-          - type: not_null
-        data_tests:
-          - unique
-          - not_null        
-      - name: is_flight_arrived
-        description: determine whether the flights reach destination
-      - name:  number_of_seats
-        description: number of available seats on the flights
-      - name:  distance_in_miles
-        description: distance between departure and destination airports in miles      
-      - name: flight_cleaning_cost
-        description: cleaning cost per flight, equal number_of_seats * var cleaning_cost_per_seat
-      - name: flight_fuel_cost
-        description: >
-          fuel cost per flight, only applicable to arrived flight,
-          equal distance_in_km * var fuel_cost_per_km
-
   - name: fct_ticket_flights
     description: >
       Each row represents an event when a ticket created and assigned to a flight
@@ -44,6 +18,18 @@ models:
         data_tests:
           - unique
           - not_null   
+      - name: is_flight_arrived
+        description: determine whether the flights reach destination
+      - name:  number_of_seats
+        description: number of available seats on the flights
+      - name:  distance_in_miles
+        description: distance between departure and destination airports in miles      
+      - name: flight_cleaning_cost
+        description: cleaning cost per flight, equal number_of_seats * var cleaning_cost_per_seat
+      - name: flight_fuel_cost
+        description: >
+          fuel cost per flight, only applicable to arrived flight,
+          equal distance_in_km * var fuel_cost_per_km          
       - name: book_flight_id
         description: foreign key to `dim_booking_flights`
         data_tests:

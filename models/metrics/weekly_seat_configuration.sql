@@ -1,19 +1,15 @@
-with ticket_flights as (
-    select * from {{ ref('fct_ticket_flights') }}
-),
-
-seat_flights as (
+with seat_flights as (
     select * from {{ ref('fct_seat_flights') }}
+    where is_flight_arrived -- only arrived flights are entitled for calculation relating to loyalty program        
 ),
 
-flights as (
-    select * from {{ ref('fct_flights') }}
-    where is_flight_arrived -- only arrived flights are entitled for calculation relating to seat configuration
+ticket_flights as (
+    select * from {{ ref('fct_ticket_flights') }}
 ),
 
 joined as (
     select
-        date_trunc('week', date(flights.actual_arrival_at)) as calendar_week,
+        date_trunc('week', seat_flights.actual_arrival_at)::date as calendar_week,
 
         -- Flights with seats availability
         coalesce(
@@ -39,7 +35,7 @@ joined as (
             sum(
                 case
                     when seat_flights.seat_fare_conditions = 'Economy'
-                        then seat_flights.number_of_seats * flights.distance_in_miles
+                        then seat_flights.number_of_seats * ticket_flights.distance_in_miles
                 end
             ), 0
         )::bigint as number_of_economy_seats_miles_offered_on_flights,
@@ -48,7 +44,7 @@ joined as (
             sum(
                 case
                     when seat_flights.seat_fare_conditions = 'Business'
-                        then seat_flights.number_of_seats * flights.distance_in_miles
+                        then seat_flights.number_of_seats * ticket_flights.distance_in_miles
                 end
             ), 0
         )::bigint as number_of_business_seats_miles_offered_on_flights,
@@ -58,7 +54,7 @@ joined as (
             sum(
                 case
                     when ticket_flights.fare_conditions = 'Economy'
-                        then seat_flights.number_of_seats * flights.distance_in_miles
+                        then seat_flights.number_of_seats * ticket_flights.distance_in_miles
                 end
             ), 0
         )::bigint as number_of_economy_seats_miles_taken,
@@ -67,7 +63,7 @@ joined as (
             sum(
                 case
                     when ticket_flights.fare_conditions = 'Business'
-                        then seat_flights.number_of_seats * flights.distance_in_miles
+                        then seat_flights.number_of_seats * ticket_flights.distance_in_miles
                 end
             ), 0
         )::bigint as number_of_business_seats_miles_taken,
@@ -79,7 +75,7 @@ joined as (
             sum(
                 case
                     when
-                        ticket_flights.fare_conditions = 'Economy' then ticket_flights.revenue
+                        ticket_flights.fare_conditions = 'Economy' then ticket_flights.flight_revenue
                 end
             ), 0
         )::bigint
@@ -87,7 +83,7 @@ joined as (
             sum(
                 case
                     when ticket_flights.fare_conditions = 'Economy'
-                        then seat_flights.number_of_seats * flights.distance_in_miles
+                        then seat_flights.number_of_seats * ticket_flights.distance_in_miles
                 end
             ), 0
         )::bigint as revenue_per_economy_seat_mile,
@@ -98,8 +94,8 @@ joined as (
                     when
                         ticket_flights.fare_conditions = 'Economy'
                         then ticket_flights.passenger_meal_cost
-                            + flights.flight_cleaning_cost * ticket_flights.flight_divider
-                            + flights.flight_fuel_cost * ticket_flights.flight_divider
+                            + ticket_flights.flight_cleaning_cost
+                            + ticket_flights.flight_fuel_cost
                 end
             ), 0
         )::bigint
@@ -107,7 +103,7 @@ joined as (
             sum(
                 case
                     when ticket_flights.fare_conditions = 'Economy'
-                        then seat_flights.number_of_seats * flights.distance_in_miles
+                        then seat_flights.number_of_seats * ticket_flights.distance_in_miles
                 end
             ), 0
         )::bigint as cost_per_economy_seat_mile,
@@ -117,7 +113,7 @@ joined as (
             sum(
                 case
                     when
-                        ticket_flights.fare_conditions = 'Business' then ticket_flights.revenue
+                        ticket_flights.fare_conditions = 'Business' then ticket_flights.flight_revenue
                 end
             ), 0
         )::bigint
@@ -125,7 +121,7 @@ joined as (
             sum(
                 case
                     when ticket_flights.fare_conditions = 'Business'
-                        then seat_flights.number_of_seats * flights.distance_in_miles
+                        then seat_flights.number_of_seats * ticket_flights.distance_in_miles
                 end
             ), 0
         )::bigint as revenue_per_business_seat_mile,
@@ -136,8 +132,8 @@ joined as (
                     when
                         ticket_flights.fare_conditions = 'Business'
                         then ticket_flights.passenger_meal_cost
-                            + flights.flight_cleaning_cost * ticket_flights.flight_divider
-                            + flights.flight_fuel_cost * ticket_flights.flight_divider
+                            + ticket_flights.flight_cleaning_cost
+                            + ticket_flights.flight_fuel_cost
                 end
             ), 0
         )::bigint
@@ -145,14 +141,12 @@ joined as (
             sum(
                 case
                     when ticket_flights.fare_conditions = 'Business'
-                        then seat_flights.number_of_seats * flights.distance_in_miles
+                        then seat_flights.number_of_seats * ticket_flights.distance_in_miles
                 end
             ), 0
         )::bigint as cost_per_business_seat_mile
 
     from seat_flights
-    inner join flights
-        on seat_flights.flight_id = flights.flight_id
     left join ticket_flights
         on seat_flights.seat_flight_id = ticket_flights.seat_flight_id
             and ticket_flights.seat_no is not null
