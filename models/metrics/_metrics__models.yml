@@ -1,0 +1,81 @@
+version: 2
+
+models:  
+  - name: monthly_loyalty_statistics
+    description: >
+      Each rows represent monthly metrics relating to lead passengers, for designing lotalty program.
+      The type of fare conditons will bedetermined by the fare conditions in lead passenger's ticket
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - calendar_month
+            - lead_passenger_id
+    columns:
+      - name: number_of_economy_flights_taken
+        description: Total economy flight the lead passengers took
+      - name: number_of_economy_miles_flown
+        description: Total economy miles the lead passengers flown
+      - name: number_of_business_flights_taken
+        description: Total business flight the lead passengers took
+      - name: number_of_business_miles_flown
+        description: Total business miles the lead passengers flown
+      - name: total_flights_taken
+        description: Total flight the lead passengers took 
+      - name: total_miles_flown
+        description: Total miles the lead passengers flown
+      - name: p_of_economy_flights_taken
+        description: Number of economy flights / Number of total flights
+      - name: p_of_economy_miles_flown
+        description: Number of economy miles / Number of total miles
+      - name: revenue_from_economy_flights
+        description: >
+          Revenue of ALL passengers in bookings booked by the lead passengers
+          with economy fare condition in lead passenger's ticket 
+      - name: cost_from_economy_flights
+        description: >
+          Cost of ALL passengers in bookings booked by the lead passengers
+          with economy fare condition in lead passenger's ticket 
+      - name: profit_margin_from_economy_flights
+        description: (Revenue from economy - Cost from economy) / Revenue from economy
+      - name: revenue_from_business_flights
+        description: >
+          Revenue of ALL passengers in bookings booked by the lead passengers
+          with business fare condition in lead passenger's ticket 
+      - name: cost_from_business_flights
+        description: >
+          Cost of ALL passengers in bookings booked by the lead passengers
+          with business fare condition in lead passenger's ticket 
+      - name: profit_margin_from_business_flights
+        description: (Revenue from business - Cost from business) / Revenue from business
+
+  - name: weekly_seat_configuration
+    description: >
+      Each rows represent weekly metrics relating to seats for seat configuration optimization
+      Seat-mile is calculated based on the multiplication of the number of miles and the number of seats, 
+      e.g.: if a flight having 10 economy seats and flying for 600 miles will have 6000 economy seat-miles
+      Revenue and Cost metrics are limited to tickets with boarding passed printed, which means tickets with seats
+    columns:
+      - name: calendar_week
+        data_tests:
+          - unique
+          - not_null
+      - name: number_of_flights_with_economy_seats_availability
+        description: Total Flights with at least 1 economy seat
+      - name: number_of_flights_with_business_seats_availability
+        description: Total Flights with at least 1 business seat
+      - name: number_of_economy_seats_miles_offered_on_flights
+        description: Total seat miles for ALL economy seats in the flight
+      - name: number_of_business_seats_miles_offered_on_flights
+        description: Total seat miles for ALL business seats in the flight
+      - name: number_of_economy_seats_miles_taken
+        description: Total seat miles for TAKEN economy seats in the flight
+      - name: number_of_business_seats_miles_taken
+        description: Total seat miles for TAKEN business seats in the flight
+      - name: revenue_per_economy_seat_mile
+        description: Revenue from Economy Seats/Number Of Economy Seats Miles Taken
+      - name: cost_per_economy_seat_mile
+        description: Cost from Economy Seats/Number Of Economy Seats Miles Taken
+      - name: revenue_per_business_seat_mile
+        description: Revenue from Business Seats/Number Of Business Seats Miles Taken
+      - name: cost_per_business_seat_mile
+        description: Cost from Business Seats/Number Of Business Seats Miles Taken

@@ -29,6 +29,8 @@ models:
         data_tests:
           - accepted_values:
               values: ['Economy','Business']
+      - name: flight_divider
+        description: divider to allocate metrics in `flight_id` level to ticket level 
   - name: stg_booking__airports
     columns:
       - name: airport_code
